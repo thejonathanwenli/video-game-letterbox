@@ -22,6 +22,7 @@
 - Users can edit or delete a review that they created.
 - Users can follow another user from that user's profile.
 - Users can unfollow a user they currently follow.
+- Users can update their optional profile biography.
 - Users can navigate to a Following page that lists recommended games and recent reviews from the users they follow.
 - Users can view statistics showing their library by status, games by genre, and personal-rating distribution.
 - Users can log out.

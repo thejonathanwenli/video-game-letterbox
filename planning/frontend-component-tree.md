@@ -1,0 +1,67 @@
+# Frontend Component Tree
+
+- App
+  - AppRouter
+    - Layout
+      - Navigation
+    - DiscoverPage
+      - GameSearchForm
+      - RecentlyAddedGames
+        - GameCard
+    - SearchResultsPage
+      - GameSearchForm
+      - GameList
+        - GameCard
+    - GameDetailsPage
+      - GameDetails
+      - ReviewList
+        - ReviewCard
+    - AuthPage
+      - LoginForm
+      - RegisterForm
+    - LibraryPage
+      - LibraryFilters
+      - LibraryList
+        - LibraryGameCard
+    - ReviewFormPage
+      - ReviewForm
+    - ProfilePage
+      - ProfileHeader
+      - EditProfileForm
+      - ProfileSummary
+      - StatisticsCharts
+        - StatusChart
+        - GenreChart
+        - RatingChart
+      - PublicLibraryList
+        - GameCard
+      - ReviewList
+        - ReviewCard
+    - FollowingPage
+      - RecommendationList
+        - FollowingGameCard
+      - RecentReviewList
+        - ReviewCard
+    - DashboardPage
+      - StatisticsSummary
+      - StatisticsCharts
+        - StatusChart
+        - GenreChart
+        - RatingChart
+    - NotFoundPage
+    - ErrorList
+    - LoadingIndicator
+    - ConfirmationMessage
+
+## Main Routes
+
+- `/` `DiscoverPage`
+- `/search?title={title}` `SearchResultsPage`
+- `/games/{rawgId}` `GameDetailsPage`
+- `/auth` `AuthPage`
+- `/library` `LibraryPage`
+- `/reviews/{userGameId}` `ReviewFormPage`
+- `/users/{username}` `ProfilePage`
+- `/following` `FollowingPage`
+- `/dashboard` `DashboardPage`
+- `*` `NotFoundPage`
