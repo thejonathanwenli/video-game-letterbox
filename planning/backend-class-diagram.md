@@ -1,0 +1,79 @@
+# Backend Class Diagram
+
+- App
+- Controllers
+  - AuthController
+    - AppUserService
+    - AuthenticationManager
+    - JwtConverter
+  - GameController
+    - GameService
+  - LibraryController
+    - LibraryService
+  - ReviewController
+    - ReviewService
+  - UserController
+    - UserService
+  - FollowController
+    - FollowService
+  - StatisticsController
+    - StatisticsService
+- Services
+  - AppUserService
+    - AppUserRepository
+    - AppRoleRepository
+    - PasswordEncoder
+  - GameService
+    - RawgClient
+    - GameRepository
+    - GenreRepository
+    - UserGameRepository
+    - ReviewRepository
+  - LibraryService
+    - UserGameRepository
+    - GameService
+    - AppUserRepository
+  - ReviewService
+    - ReviewRepository
+    - UserGameRepository
+  - UserService
+    - AppUserRepository
+    - UserGameRepository
+    - ReviewRepository
+    - UserFollowRepository
+    - StatisticsService
+  - FollowService
+    - UserFollowRepository
+    - AppUserRepository
+    - UserGameRepository
+    - ReviewRepository
+  - StatisticsService
+    - UserGameRepository
+- Repositories
+  - AppUserRepository
+  - AppRoleRepository
+  - GameRepository
+  - GenreRepository
+  - UserGameRepository
+  - ReviewRepository
+  - UserFollowRepository
+- Entities
+  - AppUser
+  - AppRole
+  - Game
+  - Genre
+  - UserGame
+  - GameStatus
+  - Review
+  - UserFollow
+  - UserFollowId
+- Security
+  - SecurityConfig
+  - JwtRequestFilter
+  - JwtConverter
+- External API
+  - RawgClient
+    - RAWG API
+- Error Handling
+  - GlobalExceptionHandler
+  - ErrorResponse
