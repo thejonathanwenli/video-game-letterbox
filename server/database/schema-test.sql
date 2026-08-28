@@ -70,7 +70,7 @@ create table user_game (
     game_id bigint not null,
     `status` varchar(30) not null,
     personal_rating tinyint,
-    recommended boolean not null default false,
+    recommended boolean,
     added_at datetime(6) not null,
     updated_at datetime(6) not null,
     constraint uq_user_game_user_game unique (user_id, game_id),

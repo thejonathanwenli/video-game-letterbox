@@ -57,8 +57,8 @@ public class UserGame {
     @Column(name = "personal_rating")
     private Byte personalRating;
 
-    @Column(nullable = false)
-    private boolean recommended;
+    @Column
+    private Boolean recommended;
 
     @Column(name = "added_at", nullable = false)
     private LocalDateTime addedAt;
@@ -126,11 +126,11 @@ public class UserGame {
         this.personalRating = personalRating;
     }
 
-    public boolean isRecommended() {
+    public Boolean getRecommended() {
         return recommended;
     }
 
-    public void setRecommended(boolean recommended) {
+    public void setRecommended(Boolean recommended) {
         this.recommended = recommended;
     }
 
