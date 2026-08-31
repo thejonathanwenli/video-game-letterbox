@@ -8,6 +8,13 @@ function Layout() {
       <main className="container py-4">
         <Outlet />
       </main>
+      <footer className="container border-top py-3 text-secondary">
+        Game data provided by{' '}
+        <a href="https://rawg.io/" target="_blank" rel="noreferrer">
+          RAWG
+        </a>
+        .
+      </footer>
     </>
   )
 }

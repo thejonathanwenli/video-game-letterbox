@@ -1,0 +1,13 @@
+@url = http://localhost:8080/api/games
+
+### Recently imported games
+
+GET {{url}} HTTP/1.1
+
+### Search RAWG
+
+GET {{url}}/search?title=portal HTTP/1.1
+
+### RAWG game details
+
+GET {{url}}/3498 HTTP/1.1
