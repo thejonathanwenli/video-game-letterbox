@@ -13,7 +13,7 @@ import jakarta.validation.constraints.NotBlank;
 @Table(
         name = "genre",
         uniqueConstraints = {
-                @UniqueConstraint(name = "uq_genre_rawg_id", columnNames = "rawg_id"),
+                @UniqueConstraint(name = "uq_genre_igdb_id", columnNames = "igdb_id"),
                 @UniqueConstraint(name = "uq_genre_name", columnNames = "name")
         }
 )
@@ -24,8 +24,8 @@ public class Genre {
     @Column(name = "genre_id")
     private Long genreId;
 
-    @Column(name = "rawg_id", nullable = false)
-    private Integer rawgId;
+    @Column(name = "igdb_id", nullable = false)
+    private Integer igdbId;
 
     @NotBlank
     @Column(nullable = false, length = 100)
@@ -42,12 +42,12 @@ public class Genre {
         this.genreId = genreId;
     }
 
-    public Integer getRawgId() {
-        return rawgId;
+    public Integer getIgdbId() {
+        return igdbId;
     }
 
-    public void setRawgId(Integer rawgId) {
-        this.rawgId = rawgId;
+    public void setIgdbId(Integer igdbId) {
+        this.igdbId = igdbId;
     }
 
     public String getName() {

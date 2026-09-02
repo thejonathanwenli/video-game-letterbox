@@ -36,7 +36,7 @@ class GameControllerTest {
 
         mvc.perform(get("/api/games/search").param("title", "Portal"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].rawgId").value(4200))
+                .andExpect(jsonPath("$[0].igdbId").value(1942))
                 .andExpect(jsonPath("$[0].title").value("Portal 2"));
     }
 
@@ -51,19 +51,19 @@ class GameControllerTest {
     void shouldFindGameDetails() throws Exception {
         GameSummaryResponse summary = makeSummary();
         GameDetailsResponse details = new GameDetailsResponse(
-                summary.getRawgId(),
+                summary.getIgdbId(),
                 summary.getTitle(),
                 "A puzzle game.",
                 summary.getImageUrl(),
                 summary.getReleaseDate(),
-                summary.getRawgRating(),
+                summary.getIgdbRating(),
                 summary.getGenres(),
                 summary.getCommunityRating(),
                 summary.getRecommendationPercentage(),
                 List.of());
-        when(gameService.findByRawgId(4200)).thenReturn(Optional.of(details));
+        when(gameService.findByIgdbId(1942)).thenReturn(Optional.of(details));
 
-        mvc.perform(get("/api/games/4200"))
+        mvc.perform(get("/api/games/1942"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.title").value("Portal 2"))
                 .andExpect(jsonPath("$.description").value("A puzzle game."));
@@ -71,7 +71,7 @@ class GameControllerTest {
 
     @Test
     void shouldReturn404ForMissingGame() throws Exception {
-        when(gameService.findByRawgId(999999)).thenReturn(Optional.empty());
+        when(gameService.findByIgdbId(999999)).thenReturn(Optional.empty());
 
         mvc.perform(get("/api/games/999999"))
                 .andExpect(status().isNotFound());
@@ -79,11 +79,11 @@ class GameControllerTest {
 
     private GameSummaryResponse makeSummary() {
         return new GameSummaryResponse(
-                4200,
+                1942,
                 "Portal 2",
                 "https://example.com/portal-2.jpg",
                 LocalDate.of(2011, 4, 18),
-                new BigDecimal("4.61"),
+                new BigDecimal("91.50"),
                 List.of("Puzzle"),
                 null,
                 null);

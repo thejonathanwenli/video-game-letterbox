@@ -8,7 +8,7 @@ import java.util.Optional;
 
 public interface GameRepository extends JpaRepository<Game, Long> {
 
-    Optional<Game> findByRawgId(Integer rawgId);
+    Optional<Game> findByIgdbId(Integer igdbId);
 
     List<Game> findAllByOrderByImportedAtDesc();
 }

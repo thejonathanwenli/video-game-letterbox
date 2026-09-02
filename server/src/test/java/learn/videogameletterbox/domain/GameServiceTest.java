@@ -5,9 +5,10 @@ import learn.videogameletterbox.data.GenreRepository;
 import learn.videogameletterbox.data.ReviewRepository;
 import learn.videogameletterbox.data.UserGameRepository;
 import learn.videogameletterbox.dtos.GameSummaryResponse;
-import learn.videogameletterbox.external.rawg.RawgClient;
-import learn.videogameletterbox.external.rawg.RawgGame;
-import learn.videogameletterbox.external.rawg.RawgGenre;
+import learn.videogameletterbox.external.igdb.IgdbClient;
+import learn.videogameletterbox.external.igdb.IgdbCover;
+import learn.videogameletterbox.external.igdb.IgdbGame;
+import learn.videogameletterbox.external.igdb.IgdbGenre;
 import learn.videogameletterbox.models.Game;
 import learn.videogameletterbox.models.Genre;
 import org.junit.jupiter.api.Test;
@@ -16,7 +17,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -35,7 +35,7 @@ class GameServiceTest {
     GameService service;
 
     @MockitoBean
-    RawgClient rawgClient;
+    IgdbClient igdbClient;
 
     @MockitoBean
     GameRepository gameRepository;
@@ -50,39 +50,41 @@ class GameServiceTest {
     ReviewRepository reviewRepository;
 
     @Test
-    void shouldSearchRawgByTitle() {
-        RawgGame rawgGame = makeRawgGame();
-        when(rawgClient.search("Portal")).thenReturn(List.of(rawgGame));
-        when(gameRepository.findByRawgId(4200)).thenReturn(Optional.empty());
+    void shouldSearchIgdbByTitle() {
+        IgdbGame igdbGame = makeIgdbGame();
+        when(igdbClient.search("Portal")).thenReturn(List.of(igdbGame));
+        when(gameRepository.findByIgdbId(1942)).thenReturn(Optional.empty());
 
         List<GameSummaryResponse> result = service.search("Portal");
 
         assertEquals(1, result.size());
-        assertEquals(4200, result.getFirst().getRawgId());
+        assertEquals(1942, result.getFirst().getIgdbId());
         assertEquals("Portal 2", result.getFirst().getTitle());
         assertEquals(List.of("Puzzle"), result.getFirst().getGenres());
+        assertEquals("https://images.igdb.com/igdb/image/upload/t_cover_big/portal-cover.jpg",
+                result.getFirst().getImageUrl());
     }
 
     @Test
-    void shouldReturnEmptyWhenRawgGameDoesNotExist() {
-        when(rawgClient.findById(999999)).thenReturn(Optional.empty());
+    void shouldReturnEmptyWhenIgdbGameDoesNotExist() {
+        when(igdbClient.findById(999999)).thenReturn(Optional.empty());
 
-        assertTrue(service.findByRawgId(999999).isEmpty());
+        assertTrue(service.findByIgdbId(999999).isEmpty());
     }
 
     @Test
     void shouldImportAGameAndItsGenres() {
-        RawgGame rawgGame = makeRawgGame();
-        when(gameRepository.findByRawgId(4200)).thenReturn(Optional.empty());
-        when(rawgClient.findById(4200)).thenReturn(Optional.of(rawgGame));
-        when(genreRepository.findByRawgId(7)).thenReturn(Optional.empty());
+        IgdbGame igdbGame = makeIgdbGame();
+        when(gameRepository.findByIgdbId(1942)).thenReturn(Optional.empty());
+        when(igdbClient.findById(1942)).thenReturn(Optional.of(igdbGame));
+        when(genreRepository.findByIgdbId(9)).thenReturn(Optional.empty());
         when(genreRepository.findByNameIgnoreCase("Puzzle")).thenReturn(Optional.empty());
         when(genreRepository.save(any(Genre.class))).thenAnswer(invocation -> invocation.getArgument(0));
         when(gameRepository.save(any(Game.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        Game result = service.findOrImport(4200);
+        Game result = service.findOrImport(1942);
 
-        assertEquals(4200, result.getRawgId());
+        assertEquals(1942, result.getIgdbId());
         assertEquals("Portal 2", result.getTitle());
         assertEquals(1, result.getGenres().size());
         verify(genreRepository).save(any(Genre.class));
@@ -93,29 +95,32 @@ class GameServiceTest {
     void shouldNotImportAGameThatAlreadyExists() {
         Game existing = new Game();
         existing.setGameId(3L);
-        existing.setRawgId(4200);
+        existing.setIgdbId(1942);
         existing.setTitle("Portal 2");
-        when(gameRepository.findByRawgId(4200)).thenReturn(Optional.of(existing));
+        when(gameRepository.findByIgdbId(1942)).thenReturn(Optional.of(existing));
 
-        Game result = service.findOrImport(4200);
+        Game result = service.findOrImport(1942);
 
         assertSame(existing, result);
-        verify(rawgClient, never()).findById(4200);
+        verify(igdbClient, never()).findById(1942);
         verify(gameRepository, never()).save(any());
     }
 
-    private RawgGame makeRawgGame() {
-        RawgGenre genre = new RawgGenre();
-        genre.setId(7);
+    private IgdbGame makeIgdbGame() {
+        IgdbGenre genre = new IgdbGenre();
+        genre.setId(9);
         genre.setName("Puzzle");
 
-        RawgGame game = new RawgGame();
-        game.setId(4200);
+        IgdbCover cover = new IgdbCover();
+        cover.setImageId("portal-cover");
+
+        IgdbGame game = new IgdbGame();
+        game.setId(1942);
         game.setName("Portal 2");
-        game.setDescription("A puzzle game.");
-        game.setBackgroundImage("https://example.com/portal-2.jpg");
-        game.setReleased(LocalDate.of(2011, 4, 18));
-        game.setRating(new BigDecimal("4.61"));
+        game.setSummary("A puzzle game.");
+        game.setFirstReleaseDate(1303084800L);
+        game.setRating(new BigDecimal("91.50"));
+        game.setCover(cover);
         game.setGenres(List.of(genre));
         return game;
     }

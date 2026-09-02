@@ -18,6 +18,11 @@ public class Result<T> {
         messages.add(message);
     }
 
+    public void addNotFoundMessage(String message) {
+        type = ResultType.NOT_FOUND;
+        messages.add(message);
+    }
+
     public ResultType getType() {
         return type;
     }

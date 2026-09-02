@@ -7,9 +7,9 @@ import learn.videogameletterbox.data.UserGameRepository;
 import learn.videogameletterbox.dtos.GameDetailsResponse;
 import learn.videogameletterbox.dtos.GameSummaryResponse;
 import learn.videogameletterbox.dtos.ReviewResponse;
-import learn.videogameletterbox.external.rawg.RawgClient;
-import learn.videogameletterbox.external.rawg.RawgGame;
-import learn.videogameletterbox.external.rawg.RawgGenre;
+import learn.videogameletterbox.external.igdb.IgdbClient;
+import learn.videogameletterbox.external.igdb.IgdbGame;
+import learn.videogameletterbox.external.igdb.IgdbGenre;
 import learn.videogameletterbox.models.Game;
 import learn.videogameletterbox.models.Genre;
 import learn.videogameletterbox.models.Review;
@@ -19,6 +19,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -27,18 +30,18 @@ import java.util.Optional;
 @Service
 public class GameService {
 
-    private final RawgClient rawgClient;
+    private final IgdbClient igdbClient;
     private final GameRepository gameRepository;
     private final GenreRepository genreRepository;
     private final UserGameRepository userGameRepository;
     private final ReviewRepository reviewRepository;
 
-    public GameService(RawgClient rawgClient,
+    public GameService(IgdbClient igdbClient,
                        GameRepository gameRepository,
                        GenreRepository genreRepository,
                        UserGameRepository userGameRepository,
                        ReviewRepository reviewRepository) {
-        this.rawgClient = rawgClient;
+        this.igdbClient = igdbClient;
         this.gameRepository = gameRepository;
         this.genreRepository = genreRepository;
         this.userGameRepository = userGameRepository;
@@ -53,19 +56,19 @@ public class GameService {
     }
 
     public List<GameSummaryResponse> search(String title) {
-        return rawgClient.search(title).stream()
+        return igdbClient.search(title).stream()
                 .map(this::buildSummary)
                 .toList();
     }
 
     @Transactional(readOnly = true)
-    public Optional<GameDetailsResponse> findByRawgId(Integer rawgId) {
-        Optional<RawgGame> rawgGame = rawgClient.findById(rawgId);
-        if (rawgGame.isEmpty()) {
+    public Optional<GameDetailsResponse> findByIgdbId(Integer igdbId) {
+        Optional<IgdbGame> igdbGame = igdbClient.findById(igdbId);
+        if (igdbGame.isEmpty()) {
             return Optional.empty();
         }
 
-        Optional<Game> savedGame = gameRepository.findByRawgId(rawgId);
+        Optional<Game> savedGame = gameRepository.findByIgdbId(igdbId);
         CommunityStats stats = savedGame
                 .map(this::getCommunityStats)
                 .orElseGet(CommunityStats::new);
@@ -73,13 +76,13 @@ public class GameService {
                 .map(this::getReviews)
                 .orElseGet(List::of);
 
-        RawgGame game = rawgGame.get();
+        IgdbGame game = igdbGame.get();
         return Optional.of(new GameDetailsResponse(
                 game.getId(),
                 game.getName(),
-                game.getDescription(),
-                game.getBackgroundImage(),
-                game.getReleased(),
+                game.getSummary(),
+                getImageUrl(game),
+                getReleaseDate(game),
                 game.getRating(),
                 getGenreNames(game.getGenres()),
                 stats.communityRating,
@@ -88,60 +91,60 @@ public class GameService {
     }
 
     @Transactional
-    public Game findOrImport(Integer rawgId) {
-        Optional<Game> existing = gameRepository.findByRawgId(rawgId);
+    public Game findOrImport(Integer igdbId) {
+        Optional<Game> existing = gameRepository.findByIgdbId(igdbId);
         if (existing.isPresent()) {
             return existing.get();
         }
 
-        RawgGame rawgGame = rawgClient.findById(rawgId)
+        IgdbGame igdbGame = igdbClient.findById(igdbId)
                 .orElseThrow(() -> new IllegalArgumentException("Game was not found."));
 
         Game game = new Game();
-        game.setRawgId(rawgGame.getId());
-        game.setTitle(rawgGame.getName());
-        game.setDescription(rawgGame.getDescription());
-        game.setImageUrl(rawgGame.getBackgroundImage());
-        game.setReleaseDate(rawgGame.getReleased());
-        game.setRawgRating(rawgGame.getRating());
+        game.setIgdbId(igdbGame.getId());
+        game.setTitle(igdbGame.getName());
+        game.setDescription(igdbGame.getSummary());
+        game.setImageUrl(getImageUrl(igdbGame));
+        game.setReleaseDate(getReleaseDate(igdbGame));
+        game.setIgdbRating(igdbGame.getRating());
 
-        List<RawgGenre> rawgGenres = rawgGame.getGenres() == null
+        List<IgdbGenre> igdbGenres = igdbGame.getGenres() == null
                 ? List.of()
-                : rawgGame.getGenres();
+                : igdbGame.getGenres();
 
-        for (RawgGenre rawgGenre : rawgGenres) {
-            if (rawgGenre.getId() == null || rawgGenre.getName() == null) {
+        for (IgdbGenre igdbGenre : igdbGenres) {
+            if (igdbGenre.getId() == null || igdbGenre.getName() == null) {
                 continue;
             }
 
-            Genre genre = genreRepository.findByRawgId(rawgGenre.getId())
-                    .or(() -> genreRepository.findByNameIgnoreCase(rawgGenre.getName()))
-                    .orElseGet(() -> createGenre(rawgGenre));
+            Genre genre = genreRepository.findByIgdbId(igdbGenre.getId())
+                    .or(() -> genreRepository.findByNameIgnoreCase(igdbGenre.getName()))
+                    .orElseGet(() -> createGenre(igdbGenre));
             game.getGenres().add(genre);
         }
 
         return gameRepository.save(game);
     }
 
-    private Genre createGenre(RawgGenre rawgGenre) {
+    private Genre createGenre(IgdbGenre igdbGenre) {
         Genre genre = new Genre();
-        genre.setRawgId(rawgGenre.getId());
-        genre.setName(rawgGenre.getName());
+        genre.setIgdbId(igdbGenre.getId());
+        genre.setName(igdbGenre.getName());
         return genreRepository.save(genre);
     }
 
-    private GameSummaryResponse buildSummary(RawgGame rawgGame) {
-        CommunityStats stats = gameRepository.findByRawgId(rawgGame.getId())
+    private GameSummaryResponse buildSummary(IgdbGame igdbGame) {
+        CommunityStats stats = gameRepository.findByIgdbId(igdbGame.getId())
                 .map(this::getCommunityStats)
                 .orElseGet(CommunityStats::new);
 
         return new GameSummaryResponse(
-                rawgGame.getId(),
-                rawgGame.getName(),
-                rawgGame.getBackgroundImage(),
-                rawgGame.getReleased(),
-                rawgGame.getRating(),
-                getGenreNames(rawgGame.getGenres()),
+                igdbGame.getId(),
+                igdbGame.getName(),
+                getImageUrl(igdbGame),
+                getReleaseDate(igdbGame),
+                igdbGame.getRating(),
+                getGenreNames(igdbGame.getGenres()),
                 stats.communityRating,
                 stats.recommendationPercentage);
     }
@@ -154,11 +157,11 @@ public class GameService {
                 .toList();
 
         return new GameSummaryResponse(
-                game.getRawgId(),
+                game.getIgdbId(),
                 game.getTitle(),
                 game.getImageUrl(),
                 game.getReleaseDate(),
-                game.getRawgRating(),
+                game.getIgdbRating(),
                 genres,
                 stats.communityRating,
                 stats.recommendationPercentage);
@@ -211,19 +214,37 @@ public class GameService {
                 review.getUpdatedAt());
     }
 
-    private List<String> getGenreNames(List<RawgGenre> genres) {
+    private List<String> getGenreNames(List<IgdbGenre> genres) {
         if (genres == null) {
             return List.of();
         }
 
         ArrayList<String> names = new ArrayList<>();
-        for (RawgGenre genre : genres) {
+        for (IgdbGenre genre : genres) {
             if (genre.getName() != null) {
                 names.add(genre.getName());
             }
         }
         names.sort(Comparator.naturalOrder());
         return names;
+    }
+
+    private String getImageUrl(IgdbGame game) {
+        if (game.getCover() == null || game.getCover().getImageId() == null) {
+            return null;
+        }
+        return "https://images.igdb.com/igdb/image/upload/t_cover_big/"
+                + game.getCover().getImageId()
+                + ".jpg";
+    }
+
+    private LocalDate getReleaseDate(IgdbGame game) {
+        if (game.getFirstReleaseDate() == null) {
+            return null;
+        }
+        return Instant.ofEpochSecond(game.getFirstReleaseDate())
+                .atZone(ZoneOffset.UTC)
+                .toLocalDate();
     }
 
     private static class CommunityStats {

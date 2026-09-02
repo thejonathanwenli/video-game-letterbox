@@ -1,0 +1,42 @@
+@url = http://localhost:8080/api/library
+@token = paste-token-here
+
+### Get current user's library
+
+GET {{url}} HTTP/1.1
+Authorization: Bearer {{token}}
+
+### Filter library
+
+GET {{url}}?status=PLAYING&genre=Adventure HTTP/1.1
+Authorization: Bearer {{token}}
+
+### Add an IGDB game
+
+POST {{url}} HTTP/1.1
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "igdbId": 1942,
+  "status": "WANT_TO_PLAY",
+  "personalRating": null,
+  "recommended": null
+}
+
+### Update a library entry
+
+PUT {{url}}/1 HTTP/1.1
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "status": "COMPLETED",
+  "personalRating": 9,
+  "recommended": true
+}
+
+### Delete a library entry
+
+DELETE {{url}}/1 HTTP/1.1
+Authorization: Bearer {{token}}

@@ -24,7 +24,7 @@
     - AppRoleRepository
     - PasswordEncoder
   - GameService
-    - RawgClient
+    - IgdbClient
     - GameRepository
     - GenreRepository
     - UserGameRepository
@@ -72,8 +72,9 @@
   - JwtRequestFilter
   - JwtConverter
 - External API
-  - RawgClient
-    - RAWG API
+  - IgdbClient
+    - Twitch OAuth
+    - IGDB API
 - Error Handling
   - GlobalExceptionHandler
   - ErrorResponse

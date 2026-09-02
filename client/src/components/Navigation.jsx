@@ -22,6 +22,11 @@ function Navigation() {
           {user ? (
             <>
               <li className="nav-item">
+                <NavLink className="nav-link" to="/library">
+                  My Library
+                </NavLink>
+              </li>
+              <li className="nav-item">
                 <span className="navbar-text me-3">{user.username}</span>
               </li>
               <li className="nav-item">
