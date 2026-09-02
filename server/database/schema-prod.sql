@@ -34,21 +34,21 @@ create table app_user_role (
 
 create table game (
     game_id bigint primary key auto_increment,
-    rawg_id int not null,
+    igdb_id int not null,
     title varchar(255) not null,
     `description` text,
     image_url varchar(1000),
     release_date date,
     imported_at datetime(6) not null,
-    rawg_rating decimal(4,2),
-    constraint uq_game_rawg_id unique (rawg_id)
+    igdb_rating decimal(5,2),
+    constraint uq_game_igdb_id unique (igdb_id)
 );
 
 create table genre (
     genre_id bigint primary key auto_increment,
-    rawg_id int not null,
+    igdb_id int not null,
     `name` varchar(100) not null,
-    constraint uq_genre_rawg_id unique (rawg_id),
+    constraint uq_genre_igdb_id unique (igdb_id),
     constraint uq_genre_name unique (`name`)
 );
 

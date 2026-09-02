@@ -39,9 +39,9 @@ public class GameController {
         return ResponseEntity.ok(gameService.search(title.trim()));
     }
 
-    @GetMapping("/{rawgId}")
-    public ResponseEntity<GameDetailsResponse> findByRawgId(@PathVariable Integer rawgId) {
-        return gameService.findByRawgId(rawgId)
+    @GetMapping("/{igdbId}")
+    public ResponseEntity<GameDetailsResponse> findByIgdbId(@PathVariable Integer igdbId) {
+        return gameService.findByIgdbId(igdbId)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }

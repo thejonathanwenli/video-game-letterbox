@@ -7,7 +7,7 @@ import java.util.Optional;
 
 public interface GenreRepository extends JpaRepository<Genre, Long> {
 
-    Optional<Genre> findByRawgId(Integer rawgId);
+    Optional<Genre> findByIgdbId(Integer igdbId);
 
     Optional<Genre> findByNameIgnoreCase(String name);
 }

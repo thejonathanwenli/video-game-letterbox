@@ -24,7 +24,7 @@ import java.util.Set;
 @Entity
 @Table(
         name = "game",
-        uniqueConstraints = @UniqueConstraint(name = "uq_game_rawg_id", columnNames = "rawg_id")
+        uniqueConstraints = @UniqueConstraint(name = "uq_game_igdb_id", columnNames = "igdb_id")
 )
 public class Game {
 
@@ -33,8 +33,8 @@ public class Game {
     @Column(name = "game_id")
     private Long gameId;
 
-    @Column(name = "rawg_id", nullable = false)
-    private Integer rawgId;
+    @Column(name = "igdb_id", nullable = false)
+    private Integer igdbId;
 
     @NotBlank
     @Column(nullable = false, length = 255)
@@ -53,8 +53,8 @@ public class Game {
     @Column(name = "imported_at", nullable = false)
     private LocalDateTime importedAt;
 
-    @Column(name = "rawg_rating", precision = 4, scale = 2)
-    private BigDecimal rawgRating;
+    @Column(name = "igdb_rating", precision = 5, scale = 2)
+    private BigDecimal igdbRating;
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
@@ -82,12 +82,12 @@ public class Game {
         this.gameId = gameId;
     }
 
-    public Integer getRawgId() {
-        return rawgId;
+    public Integer getIgdbId() {
+        return igdbId;
     }
 
-    public void setRawgId(Integer rawgId) {
-        this.rawgId = rawgId;
+    public void setIgdbId(Integer igdbId) {
+        this.igdbId = igdbId;
     }
 
     public String getTitle() {
@@ -130,12 +130,12 @@ public class Game {
         this.importedAt = importedAt;
     }
 
-    public BigDecimal getRawgRating() {
-        return rawgRating;
+    public BigDecimal getIgdbRating() {
+        return igdbRating;
     }
 
-    public void setRawgRating(BigDecimal rawgRating) {
-        this.rawgRating = rawgRating;
+    public void setIgdbRating(BigDecimal igdbRating) {
+        this.igdbRating = igdbRating;
     }
 
     public Set<Genre> getGenres() {

@@ -10,7 +10,7 @@
 
 - `GET` `/api/games`
 - `GET` `/api/games/search?title={title}`
-- `GET` `/api/games/{rawgId}`
+- `GET` `/api/games/{igdbId}`
 
 ## Personal Library
 

@@ -4,10 +4,10 @@
 
 GET {{url}} HTTP/1.1
 
-### Search RAWG
+### Search IGDB
 
 GET {{url}}/search?title=portal HTTP/1.1
 
-### RAWG game details
+### IGDB game details
 
 GET {{url}}/3498 HTTP/1.1

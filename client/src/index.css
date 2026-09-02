@@ -7,3 +7,10 @@ body {
   aspect-ratio: 16 / 9;
   object-fit: cover;
 }
+
+.library-cover {
+  height: 100%;
+  max-height: 320px;
+  object-fit: cover;
+  width: 100%;
+}

@@ -6,35 +6,35 @@ import java.util.List;
 
 public class GameSummaryResponse {
 
-    private final Integer rawgId;
+    private final Integer igdbId;
     private final String title;
     private final String imageUrl;
     private final LocalDate releaseDate;
-    private final BigDecimal rawgRating;
+    private final BigDecimal igdbRating;
     private final List<String> genres;
     private final Double communityRating;
     private final Integer recommendationPercentage;
 
-    public GameSummaryResponse(Integer rawgId,
+    public GameSummaryResponse(Integer igdbId,
                                String title,
                                String imageUrl,
                                LocalDate releaseDate,
-                               BigDecimal rawgRating,
+                               BigDecimal igdbRating,
                                List<String> genres,
                                Double communityRating,
                                Integer recommendationPercentage) {
-        this.rawgId = rawgId;
+        this.igdbId = igdbId;
         this.title = title;
         this.imageUrl = imageUrl;
         this.releaseDate = releaseDate;
-        this.rawgRating = rawgRating;
+        this.igdbRating = igdbRating;
         this.genres = genres;
         this.communityRating = communityRating;
         this.recommendationPercentage = recommendationPercentage;
     }
 
-    public Integer getRawgId() {
-        return rawgId;
+    public Integer getIgdbId() {
+        return igdbId;
     }
 
     public String getTitle() {
@@ -49,8 +49,8 @@ public class GameSummaryResponse {
         return releaseDate;
     }
 
-    public BigDecimal getRawgRating() {
-        return rawgRating;
+    public BigDecimal getIgdbRating() {
+        return igdbRating;
     }
 
     public List<String> getGenres() {

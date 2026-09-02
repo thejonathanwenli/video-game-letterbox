@@ -1,6 +1,6 @@
-package learn.videogameletterbox.external.rawg;
+package learn.videogameletterbox.external.igdb;
 
-public class RawgGenre {
+public class IgdbGenre {
 
     private Integer id;
     private String name;

@@ -9,21 +9,21 @@ public class GameDetailsResponse extends GameSummaryResponse {
     private final String description;
     private final List<ReviewResponse> reviews;
 
-    public GameDetailsResponse(Integer rawgId,
+    public GameDetailsResponse(Integer igdbId,
                                String title,
                                String description,
                                String imageUrl,
                                LocalDate releaseDate,
-                               BigDecimal rawgRating,
+                               BigDecimal igdbRating,
                                List<String> genres,
                                Double communityRating,
                                Integer recommendationPercentage,
                                List<ReviewResponse> reviews) {
-        super(rawgId,
+        super(igdbId,
                 title,
                 imageUrl,
                 releaseDate,
-                rawgRating,
+                igdbRating,
                 genres,
                 communityRating,
                 recommendationPercentage);

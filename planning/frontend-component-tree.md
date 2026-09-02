@@ -57,7 +57,7 @@
 
 - `/` `DiscoverPage`
 - `/search?title={title}` `SearchResultsPage`
-- `/games/{rawgId}` `GameDetailsPage`
+- `/games/{igdbId}` `GameDetailsPage`
 - `/auth` `AuthPage`
 - `/library` `LibraryPage`
 - `/reviews/{userGameId}` `ReviewFormPage`
