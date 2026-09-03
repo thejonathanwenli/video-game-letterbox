@@ -8,6 +8,7 @@ import learn.videogameletterbox.dtos.UpdateLibraryEntryRequest;
 import learn.videogameletterbox.models.AppUser;
 import learn.videogameletterbox.models.Game;
 import learn.videogameletterbox.models.GameStatus;
+import learn.videogameletterbox.models.Review;
 import learn.videogameletterbox.models.UserGame;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -119,6 +120,27 @@ class LibraryServiceTest {
 
         assertEquals(ResultType.NOT_FOUND, result.getType());
         assertTrue(result.getMessages().contains("Library entry does not exist."));
+        verify(userGameRepository, never()).save(any());
+    }
+
+    @Test
+    void shouldRejectWantToPlayWhenEntryHasReview() {
+        UserGame entry = makeEntry();
+        Review review = new Review();
+        review.setUserGame(entry);
+        review.setBody("A review.");
+        entry.setReview(review);
+
+        UpdateLibraryEntryRequest request = new UpdateLibraryEntryRequest();
+        request.setStatus(GameStatus.WANT_TO_PLAY);
+        when(userGameRepository.findByUserGameIdAndUser_UserId(7L, 1L))
+                .thenReturn(Optional.of(entry));
+
+        Result<LibraryEntryResponse> result = service.update(1L, 7L, request);
+
+        assertFalse(result.isSuccess());
+        assertTrue(result.getMessages().contains(
+                "Remove your review before changing status to Want to Play."));
         verify(userGameRepository, never()).save(any());
     }
 
