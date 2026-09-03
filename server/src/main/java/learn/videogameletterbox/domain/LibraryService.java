@@ -111,6 +111,12 @@ public class LibraryService {
             return result;
         }
 
+        if (request.getStatus() == GameStatus.WANT_TO_PLAY
+                && userGame.getReview() != null) {
+            result.addErrorMessage("Remove your review before changing status to Want to Play.");
+            return result;
+        }
+
         userGame.setStatus(request.getStatus());
         userGame.setPersonalRating(request.getPersonalRating());
         userGame.setRecommended(request.getRecommended());

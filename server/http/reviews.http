@@ -1,0 +1,28 @@
+@url = http://localhost:8080/api/reviews
+@token = paste-jwt-token-here
+
+### Add a review for a library entry
+
+POST {{url}} HTTP/1.1
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "userGameId": 1,
+  "body": "A thoughtful puzzle game with excellent level design."
+}
+
+### Update a review
+
+PUT {{url}}/1 HTTP/1.1
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "body": "Still one of my favorite puzzle games."
+}
+
+### Delete a review
+
+DELETE {{url}}/1 HTTP/1.1
+Authorization: Bearer {{token}}

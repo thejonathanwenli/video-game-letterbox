@@ -14,8 +14,10 @@
         - GameCard
     - GameDetailsPage
       - GameDetails
+      - ReviewForm
       - ReviewList
         - ReviewCard
+          - ReviewForm
     - AuthPage
       - LoginForm
       - RegisterForm
@@ -23,8 +25,6 @@
       - LibraryFilters
       - LibraryList
         - LibraryGameCard
-    - ReviewFormPage
-      - ReviewForm
     - ProfilePage
       - ProfileHeader
       - EditProfileForm
@@ -60,7 +60,6 @@
 - `/games/{igdbId}` `GameDetailsPage`
 - `/auth` `AuthPage`
 - `/library` `LibraryPage`
-- `/reviews/{userGameId}` `ReviewFormPage`
 - `/users/{username}` `ProfilePage`
 - `/following` `FollowingPage`
 - `/dashboard` `DashboardPage`

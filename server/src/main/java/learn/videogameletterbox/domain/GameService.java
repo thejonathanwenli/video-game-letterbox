@@ -203,15 +203,7 @@ public class GameService {
     }
 
     private ReviewResponse buildReview(Review review) {
-        UserGame userGame = review.getUserGame();
-        return new ReviewResponse(
-                review.getReviewId(),
-                userGame.getUser().getDisplayUsername(),
-                review.getBody(),
-                userGame.getPersonalRating(),
-                userGame.getRecommended(),
-                review.getCreatedAt(),
-                review.getUpdatedAt());
+        return new ReviewResponse(review);
     }
 
     private List<String> getGenreNames(List<IgdbGenre> genres) {

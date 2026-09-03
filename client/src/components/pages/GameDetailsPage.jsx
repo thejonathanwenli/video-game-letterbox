@@ -5,15 +5,19 @@ import AuthContext from '../../context/AuthContext.jsx'
 import ErrorList from '../ErrorList.jsx'
 import LoadingIndicator from '../LoadingIndicator.jsx'
 import ReviewCard from '../ReviewCard.jsx'
+import ReviewForm from '../ReviewForm.jsx'
 
 function GameDetailsPage() {
   const { igdbId } = useParams()
   const { user, token } = useContext(AuthContext)
   const [game, setGame] = useState(null)
+  const [libraryEntry, setLibraryEntry] = useState(null)
   const [status, setStatus] = useState('WANT_TO_PLAY')
   const [message, setMessage] = useState('')
   const [errors, setErrors] = useState([])
   const [isLoading, setIsLoading] = useState(true)
+  const [isLibraryLoading, setIsLibraryLoading] = useState(false)
+  const [refreshCount, setRefreshCount] = useState(0)
 
   useEffect(() => {
     async function loadGame() {
@@ -32,7 +36,36 @@ function GameDetailsPage() {
     }
 
     loadGame()
-  }, [igdbId])
+  }, [igdbId, refreshCount])
+
+  useEffect(() => {
+    async function loadLibraryEntry() {
+      if (!user || !token) {
+        setLibraryEntry(null)
+        return
+      }
+
+      setIsLibraryLoading(true)
+      try {
+        const response = await fetch(`${API_BASE_URL}/library`, {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+        if (!response.ok) {
+          setErrors(await readErrors(response))
+          return
+        }
+
+        const entries = await response.json()
+        setLibraryEntry(entries.find((entry) => entry.igdbId === Number(igdbId)) ?? null)
+      } catch {
+        setErrors(['Unable to connect to the game server.'])
+      } finally {
+        setIsLibraryLoading(false)
+      }
+    }
+
+    loadLibraryEntry()
+  }, [igdbId, token, user])
 
   async function handleAddToLibrary(event) {
     event.preventDefault()
@@ -59,6 +92,7 @@ function GameDetailsPage() {
         return
       }
 
+      setLibraryEntry(await response.json())
       setMessage('Game added to your library.')
     } catch {
       setErrors(['Unable to connect to the game server.'])
@@ -71,6 +105,14 @@ function GameDetailsPage() {
 
   if (!game) {
     return <ErrorList errors={errors.length > 0 ? errors : ['Game was not found.']} />
+  }
+
+  const ownReview = user
+    ? game.reviews.find((review) => review.userId === user.userId)
+    : null
+
+  function refreshReviews() {
+    setRefreshCount((current) => current + 1)
   }
 
   return (
@@ -92,7 +134,9 @@ function GameDetailsPage() {
             Recommended: {game.recommendationPercentage == null ? 'No votes yet' : `${game.recommendationPercentage}%`}
           </p>
           <p>{game.description || 'No description is available.'}</p>
-          {user ? (
+          {user && isLibraryLoading ? (
+            <p>Loading your library entry...</p>
+          ) : user && !libraryEntry ? (
             <form className="row g-2" onSubmit={handleAddToLibrary}>
               <div className="col-sm-7">
                 <label className="form-label" htmlFor="new-library-status">
@@ -116,10 +160,22 @@ function GameDetailsPage() {
                 </button>
               </div>
             </form>
-          ) : (
+          ) : !user ? (
             <p>
               <Link to="/auth">Log in</Link> to add this game to your library.
             </p>
+          ) : null}
+          {libraryEntry?.status === 'WANT_TO_PLAY' && (
+            <p className="alert alert-info mt-3">
+              Change this game out of Want to Play in My Library before writing a review.
+            </p>
+          )}
+          {libraryEntry && libraryEntry.status !== 'WANT_TO_PLAY' && !ownReview && (
+            <ReviewForm
+              userGameId={libraryEntry.userGameId}
+              token={token}
+              onSaved={refreshReviews}
+            />
           )}
           {message && <div className="alert alert-success mt-3">{message}</div>}
         </div>
@@ -129,7 +185,15 @@ function GameDetailsPage() {
       {game.reviews.length === 0 ? (
         <p>No reviews yet.</p>
       ) : (
-        game.reviews.map((review) => <ReviewCard key={review.reviewId} review={review} />)
+        game.reviews.map((review) => (
+          <ReviewCard
+            key={review.reviewId}
+            review={review}
+            canManage={user?.userId === review.userId}
+            token={token}
+            onChanged={refreshReviews}
+          />
+        ))
       )}
     </section>
   )
