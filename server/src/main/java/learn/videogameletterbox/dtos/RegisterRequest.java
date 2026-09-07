@@ -2,12 +2,15 @@ package learn.videogameletterbox.dtos;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 public class RegisterRequest {
 
     @NotBlank(message = "Username is required.")
     @Size(max = 50, message = "Username must be 50 characters or fewer.")
+    @Pattern(regexp = "[A-Za-z0-9_-]+",
+            message = "Username can only contain letters, numbers, underscores, and hyphens.")
     private String username;
 
     @NotBlank(message = "Email is required.")
