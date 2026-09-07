@@ -36,7 +36,3 @@
 - `PUT` `/api/follows/{userId}`
 - `DELETE` `/api/follows/{userId}`
 - `GET` `/api/following`
-
-## Statistics
-
-- `GET` `/api/statistics`

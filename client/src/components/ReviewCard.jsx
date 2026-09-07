@@ -1,9 +1,10 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import { API_BASE_URL, readErrors } from '../api.js'
 import ErrorList from './ErrorList.jsx'
 import ReviewForm from './ReviewForm.jsx'
 
-function ReviewCard({ review, canManage, token, onChanged }) {
+function ReviewCard({ review, canManage, token, onChanged, showGame = false }) {
   const [isEditing, setIsEditing] = useState(false)
   const [errors, setErrors] = useState([])
 
@@ -54,7 +55,12 @@ function ReviewCard({ review, canManage, token, onChanged }) {
   return (
     <article className="card mb-3">
       <div className="card-body">
-        <h3 className="h6">{review.username}</h3>
+        <h3 className="h6">
+          <Link to={`/users/${encodeURIComponent(review.username)}`}>{review.username}</Link>
+        </h3>
+        {showGame && (
+          <p><Link to={`/games/${review.igdbId}`}>{review.gameTitle}</Link></p>
+        )}
         <ErrorList errors={errors} />
         <p>{review.body}</p>
         <p className="mb-0 small text-secondary">

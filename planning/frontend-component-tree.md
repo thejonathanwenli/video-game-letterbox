@@ -29,25 +29,15 @@
       - ProfileHeader
       - EditProfileForm
       - ProfileSummary
-      - StatisticsCharts
-        - StatusChart
-        - GenreChart
-        - RatingChart
       - PublicLibraryList
-        - GameCard
+        - PublicLibraryCard
       - ReviewList
         - ReviewCard
     - FollowingPage
       - RecommendationList
-        - FollowingGameCard
+        - PublicLibraryCard
       - RecentReviewList
         - ReviewCard
-    - DashboardPage
-      - StatisticsSummary
-      - StatisticsCharts
-        - StatusChart
-        - GenreChart
-        - RatingChart
     - NotFoundPage
     - ErrorList
     - LoadingIndicator
@@ -62,5 +52,4 @@
 - `/library` `LibraryPage`
 - `/users/{username}` `ProfilePage`
 - `/following` `FollowingPage`
-- `/dashboard` `DashboardPage`
 - `*` `NotFoundPage`

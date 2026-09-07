@@ -27,7 +27,14 @@ function Navigation() {
                 </NavLink>
               </li>
               <li className="nav-item">
-                <span className="navbar-text me-3">{user.username}</span>
+                <NavLink className="nav-link" to="/following">
+                  Following
+                </NavLink>
+              </li>
+              <li className="nav-item">
+                <NavLink className="nav-link" to={`/users/${encodeURIComponent(user.username)}`}>
+                  My Profile
+                </NavLink>
               </li>
               <li className="nav-item">
                 <button className="btn btn-outline-light btn-sm" type="button" onClick={logout}>

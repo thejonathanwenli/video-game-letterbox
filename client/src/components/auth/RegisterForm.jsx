@@ -79,6 +79,9 @@ function RegisterForm({ onRegistered }) {
                 maxLength="50"
                 required
               />
+              <div className="form-text">
+                Use letters, numbers, underscores, or hyphens.
+              </div>
             </div>
 
             <div className="mb-3">

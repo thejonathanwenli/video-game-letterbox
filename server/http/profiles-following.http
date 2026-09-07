@@ -1,0 +1,51 @@
+@url = http://localhost:8080/api
+@token = paste-jwt-token-here
+@username = replace-with-an-existing-username
+@userId = 2
+
+### Public profile: biography, library, and reviews (no login required)
+GET {{url}}/users/{{username}} HTTP/1.1
+
+### Same profile with this viewer's follow state
+GET {{url}}/users/{{username}} HTTP/1.1
+Authorization: Bearer {{token}}
+
+### Update your own biography, not someone else's
+PUT {{url}}/users/me HTTP/1.1
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "bio": "I enjoy puzzle games and RPGs."
+}
+
+### Clear your optional biography
+PUT {{url}}/users/me HTTP/1.1
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "bio": ""
+}
+
+### Follow another user; repeat to confirm no duplicate is added
+PUT {{url}}/follows/{{userId}} HTTP/1.1
+Authorization: Bearer {{token}}
+
+### Recommended games and recent reviews from followed users
+GET {{url}}/following HTTP/1.1
+Authorization: Bearer {{token}}
+
+### Unfollow, then repeat GET /following to confirm their content is gone
+DELETE {{url}}/follows/{{userId}} HTTP/1.1
+Authorization: Bearer {{token}}
+
+### Missing user returns 404
+GET {{url}}/users/nonexistent-profile HTTP/1.1
+
+### Missing follow target returns 404
+PUT {{url}}/follows/-1 HTTP/1.1
+Authorization: Bearer {{token}}
+
+### Following feed requires authentication
+GET {{url}}/following HTTP/1.1

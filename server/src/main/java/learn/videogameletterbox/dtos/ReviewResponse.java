@@ -10,6 +10,8 @@ public class ReviewResponse {
     private final Long userId;
     private final Long userGameId;
     private final String username;
+    private final Integer igdbId;
+    private final String gameTitle;
     private final String body;
     private final Byte personalRating;
     private final Boolean recommended;
@@ -21,6 +23,8 @@ public class ReviewResponse {
         this.userId = review.getUserGame().getUser().getUserId();
         this.userGameId = review.getUserGame().getUserGameId();
         this.username = review.getUserGame().getUser().getDisplayUsername();
+        this.igdbId = review.getUserGame().getGame().getIgdbId();
+        this.gameTitle = review.getUserGame().getGame().getTitle();
         this.body = review.getBody();
         this.personalRating = review.getUserGame().getPersonalRating();
         this.recommended = review.getUserGame().getRecommended();
@@ -46,6 +50,14 @@ public class ReviewResponse {
 
     public String getBody() {
         return body;
+    }
+
+    public Integer getIgdbId() {
+        return igdbId;
+    }
+
+    public String getGameTitle() {
+        return gameTitle;
     }
 
     public Byte getPersonalRating() {

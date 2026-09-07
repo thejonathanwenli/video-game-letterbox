@@ -8,6 +8,8 @@ import HomePage from './pages/HomePage.jsx'
 import LibraryPage from './pages/LibraryPage.jsx'
 import NotFoundPage from './pages/NotFoundPage.jsx'
 import SearchResultsPage from './pages/SearchResultsPage.jsx'
+import ProfilePage from './pages/ProfilePage.jsx'
+import FollowingPage from './pages/FollowingPage.jsx'
 
 function AppRouter() {
   const { user } = useContext(AuthContext)
@@ -36,6 +38,14 @@ function AppRouter() {
         {
           path: 'library',
           element: user ? <LibraryPage /> : <Navigate to="/auth" replace />,
+        },
+        {
+          path: 'users/:username',
+          element: <ProfilePage />,
+        },
+        {
+          path: 'following',
+          element: user ? <FollowingPage /> : <Navigate to="/auth" replace />,
         },
         {
           path: '*',

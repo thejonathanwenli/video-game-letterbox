@@ -12,6 +12,8 @@ public interface UserGameRepository extends JpaRepository<UserGame, Long> {
 
     List<UserGame> findByGame_GameId(Long gameId);
 
+    List<UserGame> findByUser_UserIdInAndRecommendedTrueOrderByUpdatedAtDesc(List<Long> userIds);
+
     Optional<UserGame> findByUserGameIdAndUser_UserId(Long userGameId, Long userId);
 
     boolean existsByUser_UserIdAndGame_GameId(Long userId, Long gameId);

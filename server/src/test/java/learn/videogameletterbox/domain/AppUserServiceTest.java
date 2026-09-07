@@ -95,4 +95,45 @@ class AppUserServiceTest {
         assertTrue(result.getMessages().contains("Email is already registered."));
         verify(appUserRepository, never()).save(any());
     }
+
+    @Test
+    void shouldRejectUsernamesThatCannotBeUsedInProfileUrls() {
+        for (String username : new String[]{"player/one", "player%one", "player one", "player;one"}) {
+            Result<AppUser> result = service.register(
+                    new RegisterRequest(username, "player@example.com", "P@ssword1"));
+
+            assertFalse(result.isSuccess());
+            assertTrue(result.getMessages().contains(
+                    "Username can only contain letters, numbers, underscores, and hyphens."));
+        }
+        verify(appUserRepository, never()).save(any());
+    }
+
+    @Test
+    void shouldRejectPasswordsOver72BytesWithoutSaving() {
+        for (String password : new String[]{"A1!" + "a".repeat(70), "A1!" + "\u00e9".repeat(35)}) {
+            Result<AppUser> result = service.register(
+                    new RegisterRequest("playerOne", "player@example.com", password));
+
+            assertFalse(result.isSuccess());
+            assertTrue(result.getMessages().contains(
+                    "Password is too long. Use at most 72 bytes; some characters use more than one byte."));
+        }
+        verify(appUserRepository, never()).save(any());
+    }
+
+    @Test
+    void shouldAllow72BytePasswordAndUsernameWithUnderscoreAndHyphen() {
+        String password = "A1!" + "a".repeat(69);
+        when(appRoleRepository.findByName("USER"))
+                .thenReturn(Optional.of(new AppRole("USER")));
+        when(appUserRepository.save(any(AppUser.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        Result<AppUser> result = service.register(
+                new RegisterRequest("player_one-2", "player@example.com", password));
+
+        assertTrue(result.isSuccess());
+        assertTrue(passwordEncoder.matches(password, result.getPayload().getPasswordHash()));
+    }
 }

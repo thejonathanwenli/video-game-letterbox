@@ -17,9 +17,12 @@ import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 
+import java.util.Base64;
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -102,12 +105,18 @@ class AuthControllerTest {
 
         LoginRequest request = new LoginRequest("player@example.com", "P@ssword1");
 
-        mvc.perform(post("/api/auth/login")
+        MvcResult response = mvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.token").isNotEmpty())
-                .andExpect(jsonPath("$.user.username").value("playerOne"));
+                .andExpect(jsonPath("$.user.username").value("playerOne"))
+                .andReturn();
+
+        String token = objectMapper.readTree(response.getResponse().getContentAsString())
+                .get("token").asText();
+        var claims = objectMapper.readTree(Base64.getUrlDecoder().decode(token.split("\\.")[1]));
+        assertEquals(3600, claims.get("exp").asLong() - claims.get("iat").asLong());
     }
 
     @Test

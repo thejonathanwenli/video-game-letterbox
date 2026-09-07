@@ -125,7 +125,7 @@ function LibraryGameCard({ entry, token, onChanged }) {
                   disabled={ratingDisabled}
                 />
               </div>
-              <div className="col-md-3">
+              <div className="col-md-5">
                 <label className="form-label" htmlFor={`recommend-${entry.userGameId}`}>
                   Recommend
                 </label>
@@ -141,7 +141,7 @@ function LibraryGameCard({ entry, token, onChanged }) {
                   <option value="false">No</option>
                 </select>
               </div>
-              <div className="col-md-2 d-flex gap-2 align-items-end">
+              <div className="col-12 d-flex flex-wrap gap-2">
                 <button className="btn btn-primary" type="submit">
                   Save
                 </button>

@@ -14,6 +14,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 import java.util.Set;
 
@@ -93,6 +94,10 @@ public class AppUserService implements UserDetailsService {
         }
 
         String password = request.getPassword();
+        if (password != null && password.getBytes(StandardCharsets.UTF_8).length > 72) {
+            result.addErrorMessage(
+                    "Password is too long. Use at most 72 bytes; some characters use more than one byte.");
+        }
         if (password != null && !password.isBlank() && !isValidPassword(password)) {
             result.addErrorMessage(
                     "Password must be at least 8 characters and contain a letter, a number, and a special character.");
