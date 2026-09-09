@@ -1,11 +1,14 @@
 package learn.videogameletterbox.external.igdb;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.RestClientResponseException;
 
 import java.time.Instant;
 import java.util.Arrays;
@@ -15,6 +18,7 @@ import java.util.Optional;
 @Component
 public class IgdbClient {
 
+    private static final Logger logger = LoggerFactory.getLogger(IgdbClient.class);
     private static final String GAME_FIELDS =
             "fields id,name,summary,first_release_date,rating,cover.image_id,genres.id,genres.name;";
 
@@ -69,6 +73,7 @@ public class IgdbClient {
 
             return games == null ? List.of() : Arrays.asList(games);
         } catch (RestClientException ex) {
+            logFailure("IGDB games request", ex);
             throw new IgdbApiException(errorMessage);
         }
     }
@@ -99,7 +104,21 @@ public class IgdbClient {
             tokenExpiresAt = Instant.now().plusSeconds(response.getExpiresIn());
             return accessToken;
         } catch (RestClientException ex) {
+            logFailure("Twitch token request", ex);
             throw new IgdbApiException("Unable to authenticate with IGDB right now.");
+        }
+    }
+
+    private void logFailure(String operation, RestClientException ex) {
+        // Do not log request URLs, headers, response bodies, or exception messages:
+        // the token request contains credentials and its response contains a token.
+        if (ex instanceof RestClientResponseException responseException) {
+            logger.warn("{} failed: HTTP {} ({})", operation,
+                    responseException.getStatusCode().value(), ex.getClass().getSimpleName());
+        } else {
+            Throwable cause = ex.getMostSpecificCause();
+            logger.warn("{} failed: {} (cause: {})", operation,
+                    ex.getClass().getSimpleName(), cause.getClass().getSimpleName());
         }
     }
 

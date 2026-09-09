@@ -8,6 +8,7 @@ import learn.videogameletterbox.dtos.GameDetailsResponse;
 import learn.videogameletterbox.dtos.GameSummaryResponse;
 import learn.videogameletterbox.dtos.ReviewResponse;
 import learn.videogameletterbox.external.igdb.IgdbClient;
+import learn.videogameletterbox.external.igdb.IgdbApiException;
 import learn.videogameletterbox.external.igdb.IgdbGame;
 import learn.videogameletterbox.external.igdb.IgdbGenre;
 import learn.videogameletterbox.models.Game;
@@ -63,7 +64,13 @@ public class GameService {
 
     @Transactional(readOnly = true)
     public Optional<GameDetailsResponse> findByIgdbId(Integer igdbId) {
-        Optional<IgdbGame> igdbGame = igdbClient.findById(igdbId);
+        Optional<IgdbGame> igdbGame;
+        try {
+            igdbGame = igdbClient.findById(igdbId);
+        } catch (IgdbApiException ex) {
+            Game savedGame = gameRepository.findByIgdbId(igdbId).orElseThrow(() -> ex);
+            return Optional.of(buildDetails(savedGame));
+        }
         if (igdbGame.isEmpty()) {
             return Optional.empty();
         }
@@ -131,6 +138,21 @@ public class GameService {
         genre.setIgdbId(igdbGenre.getId());
         genre.setName(igdbGenre.getName());
         return genreRepository.save(genre);
+    }
+
+    private GameDetailsResponse buildDetails(Game game) {
+        GameSummaryResponse summary = buildSummary(game);
+        return new GameDetailsResponse(
+                summary.getIgdbId(),
+                summary.getTitle(),
+                game.getDescription(),
+                summary.getImageUrl(),
+                summary.getReleaseDate(),
+                summary.getIgdbRating(),
+                summary.getGenres(),
+                summary.getCommunityRating(),
+                summary.getRecommendationPercentage(),
+                getReviews(game));
     }
 
     private GameSummaryResponse buildSummary(IgdbGame igdbGame) {

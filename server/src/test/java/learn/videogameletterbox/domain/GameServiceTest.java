@@ -5,6 +5,8 @@ import learn.videogameletterbox.data.GenreRepository;
 import learn.videogameletterbox.data.ReviewRepository;
 import learn.videogameletterbox.data.UserGameRepository;
 import learn.videogameletterbox.dtos.GameSummaryResponse;
+import learn.videogameletterbox.dtos.GameDetailsResponse;
+import learn.videogameletterbox.external.igdb.IgdbApiException;
 import learn.videogameletterbox.external.igdb.IgdbClient;
 import learn.videogameletterbox.external.igdb.IgdbCover;
 import learn.videogameletterbox.external.igdb.IgdbGame;
@@ -22,6 +24,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
@@ -70,6 +73,39 @@ class GameServiceTest {
         when(igdbClient.findById(999999)).thenReturn(Optional.empty());
 
         assertTrue(service.findByIgdbId(999999).isEmpty());
+    }
+
+    @Test
+    void shouldStillPreferIgdbWhenSavedGameExists() {
+        Game savedGame = new Game();
+        savedGame.setGameId(3L);
+        savedGame.setTitle("Older title");
+        when(gameRepository.findByIgdbId(1942)).thenReturn(Optional.of(savedGame));
+        when(igdbClient.findById(1942)).thenReturn(Optional.of(makeIgdbGame()));
+
+        GameDetailsResponse result = service.findByIgdbId(1942).orElseThrow();
+
+        assertEquals("Portal 2", result.getTitle());
+        assertEquals("A puzzle game.", result.getDescription());
+        verify(gameRepository, never()).save(any());
+    }
+
+    @Test
+    void shouldKeepProviderErrorWhenGameHasNotBeenSaved() {
+        IgdbApiException failure = new IgdbApiException("Unable to load that game from IGDB right now.");
+        when(igdbClient.findById(1942)).thenThrow(failure);
+        when(gameRepository.findByIgdbId(1942)).thenReturn(Optional.empty());
+
+        assertSame(failure, assertThrows(IgdbApiException.class, () -> service.findByIgdbId(1942)));
+        verify(gameRepository, never()).save(any());
+    }
+
+    @Test
+    void shouldNotHideUnrelatedProgrammingErrorsWithFallback() {
+        when(igdbClient.findById(1942)).thenThrow(new IllegalStateException("Unexpected error"));
+
+        assertThrows(IllegalStateException.class, () -> service.findByIgdbId(1942));
+        verify(gameRepository, never()).findByIgdbId(1942);
     }
 
     @Test
