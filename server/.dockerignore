@@ -1,0 +1,9 @@
+target/
+database/
+http/
+.env
+.env.*
+.git/
+.idea/
+*.iml
+*.log

@@ -1,0 +1,51 @@
+name: video-game-letterbox
+
+services:
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD before starting Compose}
+      MYSQL_DATABASE: video_game_letterbox
+    ports:
+      - "127.0.0.1:3307:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./server/database/schema-prod.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "MYSQL_PWD=\"$${MYSQL_ROOT_PASSWORD}\" mysql -h 127.0.0.1 -uroot -Nse 'SELECT 1' >/dev/null"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 30s
+    restart: unless-stopped
+
+  video-game-letterbox-backend:
+    build: ./server
+    image: video-game-letterbox-backend:local
+    environment:
+      VGL_DB_URL: jdbc:mysql://mysql:3306/video_game_letterbox
+      DB_USERNAME: ${DB_USERNAME:?Set DB_USERNAME before starting Compose}
+      DB_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD before starting Compose}
+      JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET before starting Compose}
+      IGDB_CLIENT_ID: ${IGDB_CLIENT_ID:?Set IGDB_CLIENT_ID before starting Compose}
+      IGDB_CLIENT_SECRET: ${IGDB_CLIENT_SECRET:?Set IGDB_CLIENT_SECRET before starting Compose}
+    ports:
+      - "127.0.0.1:8080:8080"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    restart: unless-stopped
+
+  frontend:
+    build: ./client
+    image: video-game-letterbox-frontend:local
+    ports:
+      - "${WEB_BIND_ADDRESS:-127.0.0.1}:${WEB_PORT:-3000}:80"
+    depends_on:
+      - video-game-letterbox-backend
+    restart: unless-stopped
+
+volumes:
+  mysql-data:
+    external: true
+    name: video-game-letterbox-mysql-data
